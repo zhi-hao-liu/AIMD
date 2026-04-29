@@ -1,0 +1,19 @@
+# Core numerical and plotting stack
+numpy
+matplotlib
+
+# Configuration
+PyYAML
+
+# Graph-based fragment analysis
+networkx
+
+# Optional but recommended: preferred Gaussian parser backend.
+# The project can fall back to plain-text Gaussian log parsing if cclib is absent.
+cclib
+
+# Notes:
+# 1. xTB is required for Step 2 runtime, but it is usually installed outside pip
+#    (for example via conda-forge: `conda install -c conda-forge xtb`).
+# 2. pandas/scipy/ase/tqdm are mentioned in PLAN.md, but the current codebase
+#    does not import them, so they are not listed as hard runtime dependencies.

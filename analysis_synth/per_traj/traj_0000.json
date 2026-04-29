@@ -1,0 +1,47 @@
+{
+  "channel": "H[+1] + H[+1]",
+  "fragments": [
+    {
+      "atom_indices": [
+        1
+      ],
+      "charge": 1,
+      "com_distance_ang": 3.0,
+      "com_position_ang": [
+        -3.0,
+        0.0,
+        0.0
+      ],
+      "float_charge": 1.0,
+      "formula": "H",
+      "ke_internal_kin_eV": 0.0,
+      "ke_trans_eV": 2.499573434079048,
+      "mass_amu": 1.007825
+    },
+    {
+      "atom_indices": [
+        2
+      ],
+      "charge": 1,
+      "com_distance_ang": 3.0,
+      "com_position_ang": [
+        3.0,
+        0.0,
+        0.0
+      ],
+      "float_charge": 1.0,
+      "formula": "H",
+      "ke_internal_kin_eV": 0.0,
+      "ke_trans_eV": 2.499573434079048,
+      "mass_amu": 1.007825
+    }
+  ],
+  "terminal_state": {
+    "connectivity_stable": true,
+    "geometrically_separated": true,
+    "min_interfragment_distance_ang": 6.0,
+    "status": "converged",
+    "t_breakup_fs": 5.0
+  },
+  "traj_id": "traj_0000"
+}

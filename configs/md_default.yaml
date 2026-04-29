@@ -1,0 +1,21 @@
+charge: 2
+uhf: 0
+gfn: 2
+
+md:
+  time_total_fs: 5000.0
+  step_fs: 0.5
+  dump_every_fs: 5.0
+  nvt: false
+  temp_K: 0.0
+  hmass: 1
+  shake: 0
+  restart: true
+
+samples_dir: samples
+runs_dir: runs
+
+parallel:
+  workers: 8
+  retry_failed: true
+  timeout_per_traj_s: 7200
