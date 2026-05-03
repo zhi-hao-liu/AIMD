@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from itertools import permutations
 import re
 from typing import Iterable
 
@@ -59,13 +60,12 @@ def _parse_with_cclib(path: Path) -> GaussianFrequencyData:
     if masses_attr is None:
         masses_amu = np.array([12.0 if symbol == "C" else 1.007825 for symbol in symbols], dtype=float)
     else:
-        masses_amu = np.asarray(masses_attr, dtype=float)
+        masses_amu = _coerce_atomic_masses(masses_attr, len(symbols))
 
-    coords = np.asarray(data.atomcoords[-1], dtype=float)
+    coords = _coerce_equilibrium_coordinates(data.atomcoords[-1], len(symbols))
     frequencies = np.asarray(data.vibfreqs, dtype=float)
     reduced_masses = np.asarray(getattr(data, "vibrmasses"), dtype=float)
-    vibdisps = np.asarray(data.vibdisps, dtype=float)
-    normal_modes = np.transpose(vibdisps, (1, 2, 0))
+    normal_modes = _coerce_normal_modes(data.vibdisps, len(symbols), frequencies.shape[0])
 
     return GaussianFrequencyData(
         symbols=symbols,
@@ -186,3 +186,37 @@ def _parse_frequency_blocks(lines: list[str], n_atoms: int) -> tuple[np.ndarray,
 def _extract_floats(text: str) -> list[float]:
     return [float(token.replace("D", "E").replace("d", "e")) for token in _FLOAT_RE.findall(text)]
 
+
+def _coerce_atomic_masses(masses: Iterable[float], n_atoms: int) -> np.ndarray:
+    masses_amu = np.asarray(masses, dtype=float).reshape(-1)
+    if masses_amu.shape != (n_atoms,):
+        raise ValueError(f"Expected {n_atoms} atomic masses, got shape {masses_amu.shape}")
+    return masses_amu
+
+
+def _coerce_equilibrium_coordinates(coords: Iterable[Iterable[float]], n_atoms: int) -> np.ndarray:
+    equilibrium_xyz_ang = np.asarray(coords, dtype=float)
+    if equilibrium_xyz_ang.shape != (n_atoms, 3):
+        raise ValueError(
+            f"Expected equilibrium coordinates with shape ({n_atoms}, 3), got {equilibrium_xyz_ang.shape}"
+        )
+    return equilibrium_xyz_ang
+
+
+def _coerce_normal_modes(modes: Iterable[Iterable[Iterable[float]]], n_atoms: int, n_modes: int) -> np.ndarray:
+    modes_array = np.asarray(modes, dtype=float)
+    if modes_array.ndim != 3:
+        raise ValueError(f"Expected a 3D normal-mode array, got shape {modes_array.shape}")
+
+    target_shape = (n_atoms, 3, n_modes)
+    if modes_array.shape == target_shape:
+        return modes_array
+
+    for permutation in permutations(range(3)):
+        permuted = np.transpose(modes_array, permutation)
+        if permuted.shape == target_shape:
+            return permuted
+
+    raise ValueError(
+        f"Could not coerce normal modes to shape {target_shape}; parser returned {modes_array.shape}"
+    )

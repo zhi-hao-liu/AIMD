@@ -43,6 +43,13 @@ def select_modes(
     drop_imaginary: bool = True,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     mask = np.ones_like(frequencies_cm1, dtype=bool)
+    if modes.ndim != 3:
+        raise ValueError(f"Expected normal modes with 3 dimensions, got shape {modes.shape}")
+    if modes.shape[-1] != frequencies_cm1.shape[0]:
+        raise ValueError(
+            "Normal-mode count does not match vibrational frequencies: "
+            f"modes.shape={modes.shape}, frequencies.shape={frequencies_cm1.shape}"
+        )
     if drop_imaginary:
         mask &= frequencies_cm1 > 0.0
     if low_frequency_cutoff_cm1 is not None:
@@ -69,8 +76,13 @@ def sample_wigner(
     frequencies_au = frequencies_cm1 * WAVENUMBER_TO_AU_FREQ
     if np.any(frequencies_au <= 0.0):
         raise ValueError("Wigner sampling requires strictly positive vibrational frequencies.")
-    masses_au = data.masses_amu * AMU_TO_AU_MASS
+    masses_au = np.asarray(data.masses_amu, dtype=float).reshape(-1) * AMU_TO_AU_MASS
     reduced_masses_au = reduced_masses_amu * AMU_TO_AU_MASS
+    if modes.shape[:2] != (masses_au.shape[0], 3):
+        raise ValueError(
+            "Normal-mode Cartesian shape does not match atomic masses: "
+            f"modes.shape={modes.shape}, masses.shape={masses_au.shape}"
+        )
 
     sigma_q = np.sqrt(1.0 / (2.0 * reduced_masses_au * frequencies_au))
     sigma_p = np.sqrt(reduced_masses_au * frequencies_au / 2.0)
