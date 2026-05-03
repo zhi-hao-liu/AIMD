@@ -77,14 +77,11 @@ def write_md_input(path: str | Path, config: dict) -> None:
 def render_plain_mdrestart(positions_ang: np.ndarray, velocities_ang_fs: np.ndarray) -> str:
     positions_bohr = positions_ang * ANGSTROM_TO_BOHR
     velocities_au = velocities_ang_fs * ANGSTROM_PER_FS_TO_BOHR_PER_AUT
-    lines = []
+    lines = ["-1.0"]
     for coord, velocity in zip(positions_bohr, velocities_au):
-        lines.append(
-            " ".join(
-                f"{value: .16e}"
-                for value in [coord[0], coord[1], coord[2], velocity[0], velocity[1], velocity[2]]
-            )
-        )
+        values = [coord[0], coord[1], coord[2], velocity[0], velocity[1], velocity[2]]
+        # Match xTB's fixed-width mdrestart format: header line plus 6D22.14 rows.
+        lines.append("".join(f"{value:22.14E}".replace("E", "D") for value in values))
     return "\n".join(lines) + "\n"
 
 
